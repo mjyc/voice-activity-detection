@@ -41,6 +41,8 @@ function handleMicConnectError() {
 
 function startUserMedia(stream) {
   var options = {
+    activityCounterThresh: 10,
+    activityCounterMax: 30,
     onVoiceStart: function() {
       console.log("voice start");
       stateContainer.innerHTML = "Voice state: <strong>active</strong>";

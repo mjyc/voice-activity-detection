@@ -14,6 +14,9 @@ module.exports = function(audioContext, stream, opts) {
     minNoiseLevel: 0.3, // from 0 to 1
     maxNoiseLevel: 0.7, // from 0 to 1
     avgNoiseMultiplier: 1.2,
+    activityCounterMin: 0,
+    activityCounterMax: 60,
+    activityCounterThresh: 5,
     onInit: function(baseLevel) {},
     onVoiceStart: function() {},
     onVoiceStop: function() {},
@@ -28,9 +31,9 @@ module.exports = function(audioContext, stream, opts) {
   var baseLevel = 0;
   var voiceScale = 1;
   var activityCounter = 0;
-  var activityCounterMin = 0;
-  var activityCounterMax = 60;
-  var activityCounterThresh = 5;
+  var activityCounterMin = options.activityCounterMin;
+  var activityCounterMax = options.activityCounterMax;
+  var activityCounterThresh = options.activityCounterThresh;
 
   var envFreqRange = [];
   var isNoiseCapturing = true;
@@ -124,7 +127,6 @@ module.exports = function(audioContext, stream, opts) {
       vadState ? onVoiceStart() : onVoiceStop();
       prevVadState = vadState;
     }
-
     options.onUpdate(Math.max(0, average - baseLevel) / voiceScale);
   }
 
