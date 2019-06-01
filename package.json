@@ -1,6 +1,6 @@
 {
   "name": "@mjyc/voice-activity-detection",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Mic input activity detection",
   "main": "index.js",
   "license": "MIT",
