@@ -20,13 +20,19 @@ module.exports = function(audioContext, stream, opts) {
     onInit: function(baseLevel) {},
     onVoiceStart: function() {},
     onVoiceStop: function() {},
-    onUpdate: function(val) {}
+    onUpdate: function(val) {},
+    logger: {
+      debug: function() {}
+    }
   };
 
   var options = {};
   for (var key in defaults) {
     options[key] = opts.hasOwnProperty(key) ? opts[key] : defaults[key];
   }
+
+  var logger = options.logger;
+  var prevStamp = Date.now();
 
   var baseLevel = 0;
   var voiceScale = 1;
@@ -80,6 +86,7 @@ module.exports = function(audioContext, stream, opts) {
 
     voiceScale = 1 - baseLevel;
 
+    logger.debug("baseLevel", baseLevel);
     options.onInit(baseLevel);
   }
 
@@ -127,6 +134,18 @@ module.exports = function(audioContext, stream, opts) {
       vadState ? onVoiceStart() : onVoiceStop();
       prevVadState = vadState;
     }
+
+    var stamp = Date.now();
+    logger.debug(
+      "hz",
+      1000 / (prevStamp - stamp),
+      "average",
+      average,
+      "activityCounter",
+      activityCounter
+    );
+    prevStamp = stamp;
+
     options.onUpdate(Math.max(0, average - baseLevel) / voiceScale);
   }
 

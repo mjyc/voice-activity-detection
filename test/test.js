@@ -54,7 +54,8 @@ function startUserMedia(stream) {
     onUpdate: function(val) {
       valueContainer.innerHTML =
         "Current voice activity value: <strong>" + val + "</strong>";
-    }
+    },
+    logger: console
   };
   vad(audioContext, stream, options);
 }
