@@ -41,6 +41,7 @@ function handleMicConnectError() {
 
 function startUserMedia(stream) {
   var options = {
+    useNoiseCapture: false,
     activityCounterThresh: 10,
     activityCounterMax: 30,
     onVoiceStart: function() {

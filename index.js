@@ -10,6 +10,7 @@ module.exports = function(audioContext, stream, opts) {
     smoothingTimeConstant: 0.2,
     minCaptureFreq: 85, // in Hz
     maxCaptureFreq: 255, // in Hz
+    useNoiseCapture: true,
     noiseCaptureDuration: 1000, // in ms
     minNoiseLevel: 0.3, // from 0 to 1
     maxNoiseLevel: 0.7, // from 0 to 1
@@ -17,6 +18,7 @@ module.exports = function(audioContext, stream, opts) {
     activityCounterMin: 0,
     activityCounterMax: 60,
     activityCounterThresh: 5,
+    useDefaultActivityCounting: true,
     onInit: function(baseLevel) {},
     onVoiceStart: function() {},
     onVoiceStop: function() {},
@@ -36,13 +38,15 @@ module.exports = function(audioContext, stream, opts) {
 
   var baseLevel = 0;
   var voiceScale = 1;
+  var useNoiseCapture = options.useNoiseCapture;
   var activityCounter = 0;
   var activityCounterMin = options.activityCounterMin;
   var activityCounterMax = options.activityCounterMax;
   var activityCounterThresh = options.activityCounterThresh;
+  var useDefaultActivityCounting = options.useDefaultActivityCounting;
 
   var envFreqRange = [];
-  var isNoiseCapturing = true;
+  var isNoiseCapturing = useNoiseCapture;
   var prevVadState = undefined;
   var vadState = false;
   var captureTimeout = null;
@@ -62,6 +66,13 @@ module.exports = function(audioContext, stream, opts) {
 
   if (isNoiseCapturing) {
     captureTimeout = setTimeout(init, options.noiseCaptureDuration);
+  } else {
+    // run "simplified init"
+    baseLevel = options.minNoiseLevel; // assuming mic does noise canceling
+    voiceScale = 1 - baseLevel;
+
+    logger.debug("baseLevel", baseLevel);
+    options.onInit(baseLevel);
   }
 
   function init() {
@@ -125,8 +136,18 @@ module.exports = function(audioContext, stream, opts) {
 
     if (average >= baseLevel && activityCounter < activityCounterMax) {
       activityCounter++;
+      if (
+        !useDefaultActivityCounting &&
+        activityCounter > activityCounterThresh
+      )
+        activityCounter = activityCounterMax;
     } else if (average < baseLevel && activityCounter > activityCounterMin) {
       activityCounter--;
+      if (
+        !useDefaultActivityCounting &&
+        activityCounter < activityCounterThresh
+      )
+        activityCounter = activityCounterMin;
     }
     vadState = activityCounter > activityCounterThresh;
 
