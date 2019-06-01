@@ -14,6 +14,7 @@ module.exports = function(audioContext, stream, opts) {
     minNoiseLevel: 0.3, // from 0 to 1
     maxNoiseLevel: 0.7, // from 0 to 1
     avgNoiseMultiplier: 1.2,
+    onInit: function() {},
     onVoiceStart: function() {},
     onVoiceStop: function() {},
     onUpdate: function(val) {}
@@ -75,6 +76,8 @@ module.exports = function(audioContext, stream, opts) {
       baseLevel = options.maxNoiseLevel;
 
     voiceScale = 1 - baseLevel;
+
+    onInit(baseLevel);
   }
 
   function connect() {
@@ -123,6 +126,10 @@ module.exports = function(audioContext, stream, opts) {
     }
 
     options.onUpdate(Math.max(0, average - baseLevel) / voiceScale);
+  }
+
+  function onInit() {
+    options.onInit();
   }
 
   function onVoiceStart() {
