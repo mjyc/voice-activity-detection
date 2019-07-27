@@ -167,7 +167,10 @@ module.exports = function(audioContext, stream, opts) {
     );
     prevStamp = stamp;
 
-    options.onUpdate(Math.max(0, average - baseLevel) / voiceScale);
+    options.onUpdate({
+      average: average,
+      adjusted: Math.max(0, average - baseLevel) / voiceScale
+    });
   }
 
   function onVoiceStart() {
